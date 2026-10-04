@@ -54,7 +54,7 @@ test.describe('CU18 — Registrar propiedad (actor: Inmobiliaria)', () => {
     await expect(page.getByText('Campos obligatorios sin rellenar')).toBeVisible({ timeout: 3_000 });
   });
 
-  test('CP-CU18-02 · superficie y descripción son obligatorias según el TP2', async ({ page }) => {
+  test('CP-CU18-07 · superficie y descripción son obligatorias según el TP2', async ({ page }) => {
     test.fail(true, 'DEF-CU18-02: superficie y descripción figuran como obligatorias en el TP2 pero el formulario las acepta vacías');
     await abrirAlta(page);
     await completarAlta(page, { ...BASE, titulo: 'QA6- sin guardar', supTotal: '', supCubierta: '', descripcion: '' });
@@ -88,7 +88,7 @@ test.describe('CU18 — Registrar propiedad (actor: Inmobiliaria)', () => {
     });
   }
 
-  test('CP-CU18-03 · superficie cubierta mayor que la total debería rechazarse', async ({ page }) => {
+  test('CP-CU18-13 · superficie cubierta mayor que la total debería rechazarse', async ({ page }) => {
     test.fail(true, 'DEF-CU18-04: no hay validación cruzada; 250 m² cubiertos sobre 100 m² totales es aceptado');
     await abrirAlta(page);
     await completarAlta(page, { ...BASE, titulo: 'QA6- sin guardar', supTotal: 100, supCubierta: 250 });
