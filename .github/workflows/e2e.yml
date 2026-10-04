@@ -30,7 +30,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Instalar dependencias
@@ -41,6 +41,10 @@ jobs:
 
       - name: Ejecutar la suite
         run: npx playwright test
+
+      - name: Resumen de resultados
+        if: always()
+        run: node scripts/resumen.js test-results/results.json >> "$GITHUB_STEP_SUMMARY"
 
       - name: Publicar reporte HTML
         if: always()

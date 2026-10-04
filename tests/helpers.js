@@ -26,6 +26,8 @@ function usarSesion(rol) {
 const ESCRITURA = process.env.PERMITIR_ESCRITURA === '1';
 function requiereEscritura() {
   test.skip(!ESCRITURA, 'Caso con escritura: ejecutar con PERMITIR_ESCRITURA=1 (acordado con el Grupo 8, prefijo QA6-)');
+  // Para no duplicar datos, los casos con escritura corren en un único navegador.
+  test.skip(test.info().project.name !== 'chromium', 'Caso con escritura: se ejecuta sólo en chromium para no duplicar datos');
 }
 
 /** Prefijo y sello para identificar y limpiar los datos de prueba. */
