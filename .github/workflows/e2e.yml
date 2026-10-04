@@ -11,9 +11,16 @@ on:
         type: boolean
         default: false
 
+# Una sola corrida a la vez: el sistema bajo prueba es un despliegue compartido.
+concurrency:
+  group: e2e-locative
+  cancel-in-progress: false
+
 jobs:
   e2e:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # para publicar la rama «resultados»
     timeout-minutes: 20
     env:
       CI: 'true'
@@ -45,6 +52,28 @@ jobs:
       - name: Resumen de resultados
         if: always()
         run: node scripts/resumen.js test-results/results.json >> "$GITHUB_STEP_SUMMARY"
+
+      # Publica la última corrida en la rama «resultados» (reporte HTML navegable con
+      # GitHub Pages, más el JSON/JUnit y el resumen en Markdown) para poder consultarla
+      # sin iniciar sesión en GitHub.
+      - name: Publicar resultados en la rama «resultados»
+        if: always()
+        run: |
+          set -e
+          OUT="$RUNNER_TEMP/resultados"
+          mkdir -p "$OUT"
+          cp -r playwright-report/. "$OUT/" || true
+          cp test-results/results.json test-results/junit.xml "$OUT/" 2>/dev/null || true
+          node scripts/resumen.js test-results/results.json > "$OUT/RESUMEN.md"
+          touch "$OUT/.nojekyll"
+          cd "$OUT"
+          git init -q
+          git checkout -q -b resultados
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Resultados de la corrida #${{ github.run_number }} (${{ github.event_name }}, escritura=${PERMITIR_ESCRITURA})"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" resultados
 
       - name: Publicar reporte HTML
         if: always()
