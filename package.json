@@ -1,0 +1,16 @@
+{
+  "name": "locative-e2e-grupo6",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pruebas automatizadas (Playwright) del CU18 Registrar propiedad y del CU12 Consultar estado de pagos de Locative (Grupo 8). Ingeniería de Software II - UNaM - Grupo 6.",
+  "scripts": {
+    "test": "playwright test",
+    "test:escritura": "cross-env PERMITIR_ESCRITURA=1 playwright test",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5"
+  }
+}
