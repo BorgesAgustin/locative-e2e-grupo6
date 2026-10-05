@@ -14,8 +14,8 @@ const BASE = {
 test.describe('CU18 — Registrar propiedad (actor: Inmobiliaria)', () => {
   usarSesion('inmobiliaria');
 
-  // ───────────── CP-CU18-01 · Flujo básico (caso que pasa) ─────────────
-  test('CP-CU18-01 · alta con datos válidos se registra y publica', async ({ page }) => {
+  // ───────────── CP-CU18-01 - Flujo básico (caso que pasa) ─────────────
+  test('CP-CU18-01 - alta con datos válidos se registra y publica', async ({ page }) => {
     requiereEscritura();
     const titulo = tituloQA('CP-CU18-01');
     await abrirAlta(page);
@@ -37,8 +37,8 @@ test.describe('CU18 — Registrar propiedad (actor: Inmobiliaria)', () => {
     await expect(page.getByRole('heading', { name: titulo })).toBeVisible();
   });
 
-  // ───────────── CP-CU18-02 · Extensión 3.b (caso que falla) ─────────────
-  test('CP-CU18-02 · campos obligatorios vacíos: no registra nada', async ({ page }) => {
+  // ───────────── CP-CU18-02 - Extensión 3.b (caso que falla) ─────────────
+  test('CP-CU18-02 - campos obligatorios vacíos: no registra nada', async ({ page }) => {
     await abrirAlta(page);
     await page.getByRole('button', { name: 'Guardar propiedad' }).click();
     await expect(page).toHaveURL(/\/propiedades\/nueva$/);
@@ -47,21 +47,21 @@ test.describe('CU18 — Registrar propiedad (actor: Inmobiliaria)', () => {
     expect(invalidos).toEqual(['title', 'price', 'province', 'address']);
   });
 
-  test('CP-CU18-02 · campos obligatorios vacíos: mensaje según especificación (3.b.1)', async ({ page }) => {
-    test.fail(true, 'DEF-CU18-01: el sistema no muestra «Campos obligatorios sin rellenar» ni lista los campos; sólo el globo nativo del navegador en el primer campo');
+  test('CP-CU18-02 - campos obligatorios vacíos: mensaje según especificación (3.b.1)', async ({ page }) => {
+    test.fail(true, 'DEF-CU18-01: el sistema no muestra "Campos obligatorios sin rellenar" ni lista los campos; sólo el globo nativo del navegador en el primer campo');
     await abrirAlta(page);
     await page.getByRole('button', { name: 'Guardar propiedad' }).click();
     await expect(page.getByText('Campos obligatorios sin rellenar')).toBeVisible({ timeout: 3_000 });
   });
 
-  test('CP-CU18-07 · superficie y descripción son obligatorias según el TP2', async ({ page }) => {
+  test('CP-CU18-07 - superficie y descripción son obligatorias según el TP2', async ({ page }) => {
     test.fail(true, 'DEF-CU18-02: superficie y descripción figuran como obligatorias en el TP2 pero el formulario las acepta vacías');
     await abrirAlta(page);
     await completarAlta(page, { ...BASE, titulo: 'QA6- sin guardar', supTotal: '', supCubierta: '', descripcion: '' });
     expect(await formularioValido(page)).toBe(false);
   });
 
-  // ───────────── CP-CU18-03 · Valores límite (sin escritura) ─────────────
+  // ───────────── CP-CU18-03 - Valores límite (sin escritura) ─────────────
   const LIMITES = [
     // [control, valor, ¿válido?, justificación]
     ['precio', '-1', false, 'debajo del mínimo (min=1)'],
@@ -79,24 +79,24 @@ test.describe('CU18 — Registrar propiedad (actor: Inmobiliaria)', () => {
     ['supTotal', '12.345', false, 'tres decimales'],
   ];
   for (const [campo, valor, valido, motivo] of LIMITES) {
-    test(`CP-CU18-03 · ${campo} = ${valor} → ${valido ? 'aceptado' : 'rechazado'} (${motivo})`, async ({ page }) => {
+    test(`CP-CU18-03 - ${campo} = ${valor}: ${valido ? 'aceptado' : 'rechazado'} (${motivo})`, async ({ page }) => {
       await abrirAlta(page);
       await page.fill(F[campo], valor);
       const msg = await mensajeValidacion(page, F[campo]);
-      if (valido) expect(msg, `se esperaba válido y el navegador dijo: «${msg}»`).toBe('');
+      if (valido) expect(msg, `se esperaba válido y el navegador dijo: "${msg}"`).toBe('');
       else expect(msg, 'se esperaba un mensaje de validación').not.toBe('');
     });
   }
 
-  test('CP-CU18-13 · superficie cubierta mayor que la total debería rechazarse', async ({ page }) => {
+  test('CP-CU18-13 - superficie cubierta mayor que la total debería rechazarse', async ({ page }) => {
     test.fail(true, 'DEF-CU18-04: no hay validación cruzada; 250 m² cubiertos sobre 100 m² totales es aceptado');
     await abrirAlta(page);
     await completarAlta(page, { ...BASE, titulo: 'QA6- sin guardar', supTotal: 100, supCubierta: 250 });
     expect(await formularioValido(page)).toBe(false);
   });
 
-  // ───────────── CP-CU18-04 · Integración con el panel del propietario ─────────────
-  test('CP-CU18-04 · la propiedad asignada aparece en «Mis propiedades» del propietario', async ({ page, browser }) => {
+  // ───────────── CP-CU18-04 - Integración con el panel del propietario ─────────────
+  test('CP-CU18-04 - la propiedad asignada aparece en "Mis propiedades" del propietario', async ({ page, browser }) => {
     requiereEscritura();
     test.skip(!fs.existsSync(authFile('propietario')), 'Falta la sesión del propietario');
     const titulo = tituloQA('CP-CU18-04');
@@ -114,8 +114,8 @@ test.describe('CU18 — Registrar propiedad (actor: Inmobiliaria)', () => {
     await ctx.close();
   });
 
-  // ───────────── CP-CU18-05 · Extensión 3.c (cancelar) ─────────────
-  test('CP-CU18-05 · cancelar no registra la propiedad y vuelve al listado', async ({ page }) => {
+  // ───────────── CP-CU18-05 - Extensión 3.c (cancelar) ─────────────
+  test('CP-CU18-05 - cancelar no registra la propiedad y vuelve al listado', async ({ page }) => {
     await page.goto('/inmobiliaria/propiedades');
     const contador = page.getByText(/\d+ de \d+ propiedades/);
     const antes = await contador.textContent();
