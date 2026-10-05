@@ -33,7 +33,7 @@ test.describe('CU12 — Consultar estado de pagos (actor: Inquilino)', () => {
 
 test.describe('CU12 — Consultar estado de pagos (actor: Propietario)', () => {
   usarSesion('propietario');
-  test('CP-CU12-02 - la sección "Pagos" del propietario existe pero sin datos', async ({ page }) => {
+  test('CP-CU12-06 - la sección "Pagos" del propietario existe pero sin datos', async ({ page }) => {
     await page.goto('/propietario/pagos');
     await expect(page.locator('main')).toContainText('No hay pagos pendientes');
   });

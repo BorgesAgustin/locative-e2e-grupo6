@@ -7,7 +7,7 @@ Suite de pruebas automatizadas con **Playwright** sobre el sistema **Locative** 
 |---|---|---|
 | `tests/cu18-registrar-propiedad.spec.js` | CU18 Registrar propiedad | CP-CU18-01 a 05, 07 y 13 |
 | `tests/control-acceso.spec.js` | CU18 (precondición) | CP-CU18-08, CP-CU18-09 |
-| `tests/cu12-consultar-pagos.spec.js` | CU12 Consultar estado de pagos | CP-CU12-00 a CP-CU12-02 |
+| `tests/cu12-consultar-pagos.spec.js` | CU12 Consultar estado de pagos | CP-CU12-00, 01 y 06 |
 
 Los casos que documentan un defecto conocido están marcados con `test.fail()`: el reporte los
 muestra como «expected failure» y, si el Grupo 8 corrige el defecto, Playwright avisa que la
