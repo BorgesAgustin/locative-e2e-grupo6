@@ -87,4 +87,34 @@ async function completarAlta(page, d) {
 const mensajeValidacion = (page, sel) => page.locator(sel).evaluate((e) => e.validationMessage);
 const formularioValido = (page) => page.locator('main form').evaluate((f) => f.checkValidity());
 
-module.exports = { ROLES, authFile, usarSesion, requiereEscritura, ESCRITURA, tituloQA, F, abrirAlta, completarAlta, mensajeValidacion, formularioValido };
+/**
+ * Red de seguridad: corta cualquier alta, edición o borrado en la tabla «properties» de Supabase
+ * y lo registra. Las lecturas (GET) pasan normalmente. Devuelve la lista de intentos de escritura.
+ */
+async function bloquearEscrituras(page) {
+  const intentos = [];
+  await page.route('**/rest/v1/properties**', (route) => {
+    const metodo = route.request().method();
+    if (['GET', 'HEAD', 'OPTIONS'].includes(metodo)) return route.continue();
+    intentos.push(metodo);
+    return route.abort('blockedbyclient');
+  });
+  return intentos;
+}
+
+/** Desactiva la validación nativa del navegador (como quitar «required»/«min» desde el inspector). */
+const sinValidacionNativa = (page) => page.locator('form.property-editor').evaluate((f) => { f.noValidate = true; });
+
+/** Deja un select sin valor, como se haría desde el inspector, y avisa el cambio a la página. */
+const vaciarSelect = (page, sel) => page.locator(sel).evaluate((el) => {
+  el.value = '';
+  el.dispatchEvent(new Event('change', { bubbles: true }));
+});
+
+/** Mensaje de error que muestra el formulario de alta (párrafo .error-message). */
+const mensajeError = (page) => page.locator('p.error-message');
+
+module.exports = {
+  ROLES, authFile, usarSesion, requiereEscritura, ESCRITURA, tituloQA, F, abrirAlta, completarAlta,
+  mensajeValidacion, formularioValido, bloquearEscrituras, sinValidacionNativa, vaciarSelect, mensajeError,
+};

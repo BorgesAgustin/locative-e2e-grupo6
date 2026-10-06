@@ -2,7 +2,7 @@
 // CU18 — Registrar propiedad (RF-1). Especificación: TP2 del Grupo 8, págs. 13-15.
 const fs = require('fs');
 const { test, expect } = require('@playwright/test');
-const { usarSesion, requiereEscritura, tituloQA, F, abrirAlta, completarAlta, mensajeValidacion, formularioValido, authFile } = require('./helpers');
+const { usarSesion, requiereEscritura, tituloQA, F, abrirAlta, completarAlta, mensajeValidacion, authFile, bloquearEscrituras, mensajeError } = require('./helpers');
 
 const BASE = {
   tipo: 'departamento', operacion: 'alquiler', precio: 250000,
@@ -55,10 +55,14 @@ test.describe('CU18 — Registrar propiedad (actor: Inmobiliaria)', () => {
   });
 
   test('CP-CU18-07 - superficie y descripción son obligatorias según el TP2', async ({ page }) => {
-    test.fail(true, 'DEF-CU18-02: superficie y descripción figuran como obligatorias en el TP2 pero el formulario las acepta vacías');
+    test.fail(true, 'DEF-CU18-02: superficie y descripción figuran como obligatorias en el TP2 pero el sistema las acepta vacías (ni la validación del navegador ni la del código las exige)');
+    const intentos = await bloquearEscrituras(page);
     await abrirAlta(page);
     await completarAlta(page, { ...BASE, titulo: 'QA6- sin guardar', supTotal: '', supCubierta: '', descripcion: '' });
-    expect(await formularioValido(page)).toBe(false);
+    await page.getByRole('button', { name: 'Guardar propiedad' }).click();
+    // Si el sistema rechazara los datos, no intentaría guardar. La red de seguridad corta el guardado.
+    await expect(mensajeError(page)).toBeVisible();
+    expect(intentos, 'el sistema intentó guardar la propiedad sin superficie ni descripción').toEqual([]);
   });
 
   // ───────────── CP-CU18-03 - Valores límite (sin escritura) ─────────────
@@ -88,11 +92,17 @@ test.describe('CU18 — Registrar propiedad (actor: Inmobiliaria)', () => {
     });
   }
 
-  test('CP-CU18-13 - superficie cubierta mayor que la total debería rechazarse', async ({ page }) => {
-    test.fail(true, 'DEF-CU18-04: no hay validación cruzada; 250 m² cubiertos sobre 100 m² totales es aceptado');
+  // Corregido el 06/10/2026: la versión anterior sólo consultaba la validación nativa del navegador
+  // (checkValidity) sin enviar el formulario. El análisis de caja blanca mostró que el sistema valida
+  // la superficie al guardar, así que DEF-CU18-04 fue un falso positivo.
+  test('CP-CU18-13 - superficie cubierta mayor que la total se rechaza al guardar', async ({ page }) => {
+    const intentos = await bloquearEscrituras(page);
     await abrirAlta(page);
     await completarAlta(page, { ...BASE, titulo: 'QA6- sin guardar', supTotal: 100, supCubierta: 250 });
-    expect(await formularioValido(page)).toBe(false);
+    await page.getByRole('button', { name: 'Guardar propiedad' }).click();
+    await expect(mensajeError(page)).toHaveText('La superficie cubierta no puede ser mayor que la superficie total.');
+    await expect(page).toHaveURL(/\/propiedades\/nueva$/);
+    expect(intentos).toEqual([]);
   });
 
   // ───────────── CP-CU18-04 - Integración con el panel del propietario ─────────────
