@@ -12,7 +12,7 @@
 // Ninguna prueba crea datos: bloquearEscrituras() corta cualquier alta en la tabla «properties».
 const { test, expect } = require('@playwright/test');
 const {
-  usarSesion, F, abrirAlta, completarAlta, bloquearEscrituras, sinValidacionNativa, vaciarSelect, mensajeError,
+  usarSesion, F, abrirAlta, completarAlta, bloquearEscrituras, sinValidacionNativa, vaciarSelect, mensajeError, centrar,
 } = require('./helpers');
 
 /** Datos válidos: a partir de ellos, cada camino altera un solo campo. */
@@ -60,6 +60,7 @@ test.describe('CP-CU18-20 - camino básico de validar() (caja blanca)', () => {
       await provocar(page);
       await guardar(page);
       await expect(mensajeError(page)).toHaveText(mensaje);
+      await centrar(mensajeError(page)); // evidencia: el mensaje queda en la captura final
       await expect(page).toHaveURL(/\/propiedades\/nueva$/);
       expect(intentos, 'validar() debe cortar antes de intentar guardar').toEqual([]);
     });
@@ -79,7 +80,7 @@ test.describe('CP-CU18-21 - caminos del control de acceso por rol (caja blanca)'
     await page.route('**/rest/v1/profiles**', async (route) => { await espera; await route.continue(); });
     await page.goto('/inmobiliaria/propiedades/nueva');
     await expect(page.getByText('Cargando sesion...')).toBeVisible();
-    await page.screenshot({ path: test.info().outputPath('camino1-cargando.png') });
+    await test.info().attach('camino 1 - Cargando sesion', { body: await page.screenshot(), contentType: 'image/png' });
     liberar();
     await expect(page.locator(F.titulo)).toBeVisible(); // al terminar la carga sigue por el camino 4
   });
@@ -128,6 +129,7 @@ test.describe('CP-CU18-22 - rama de error al guardar (caja blanca)', () => {
       await completarAlta(page, VALIDOS);
       await guardar(page);
       await expect(mensajeError(page)).toHaveText(mensaje);
+      await centrar(mensajeError(page));
       await expect(page).toHaveURL(/\/propiedades\/nueva$/);
       // finally: el botón vuelve a habilitarse para reintentar.
       await expect(page.getByRole('button', { name: 'Guardar propiedad' })).toBeEnabled();

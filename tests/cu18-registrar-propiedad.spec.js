@@ -2,7 +2,7 @@
 // CU18 — Registrar propiedad (RF-1). Especificación: TP2 del Grupo 8, págs. 13-15.
 const fs = require('fs');
 const { test, expect } = require('@playwright/test');
-const { usarSesion, requiereEscritura, tituloQA, F, abrirAlta, completarAlta, mensajeValidacion, authFile, bloquearEscrituras, mensajeError } = require('./helpers');
+const { usarSesion, requiereEscritura, tituloQA, F, abrirAlta, completarAlta, mensajeValidacion, authFile, bloquearEscrituras, mensajeError, centrar } = require('./helpers');
 
 const BASE = {
   tipo: 'departamento', operacion: 'alquiler', precio: 250000,
@@ -62,6 +62,7 @@ test.describe('CU18 — Registrar propiedad (actor: Inmobiliaria)', () => {
     await page.getByRole('button', { name: 'Guardar propiedad' }).click();
     // Si el sistema rechazara los datos, no intentaría guardar. La red de seguridad corta el guardado.
     await expect(mensajeError(page)).toBeVisible();
+    await centrar(mensajeError(page));
     expect(intentos, 'el sistema intentó guardar la propiedad sin superficie ni descripción').toEqual([]);
   });
 
@@ -101,6 +102,7 @@ test.describe('CU18 — Registrar propiedad (actor: Inmobiliaria)', () => {
     await completarAlta(page, { ...BASE, titulo: 'QA6- sin guardar', supTotal: 100, supCubierta: 250 });
     await page.getByRole('button', { name: 'Guardar propiedad' }).click();
     await expect(mensajeError(page)).toHaveText('La superficie cubierta no puede ser mayor que la superficie total.');
+    await centrar(mensajeError(page));
     await expect(page).toHaveURL(/\/propiedades\/nueva$/);
     expect(intentos).toEqual([]);
   });

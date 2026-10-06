@@ -111,10 +111,13 @@ const vaciarSelect = (page, sel) => page.locator(sel).evaluate((el) => {
   el.dispatchEvent(new Event('change', { bubbles: true }));
 });
 
+/** Centra un elemento en pantalla para que quede en la captura final de la prueba (evidencia). */
+const centrar = (locator) => locator.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+
 /** Mensaje de error que muestra el formulario de alta (párrafo .error-message). */
 const mensajeError = (page) => page.locator('p.error-message');
 
 module.exports = {
   ROLES, authFile, usarSesion, requiereEscritura, ESCRITURA, tituloQA, F, abrirAlta, completarAlta,
-  mensajeValidacion, formularioValido, bloquearEscrituras, sinValidacionNativa, vaciarSelect, mensajeError,
+  mensajeValidacion, formularioValido, bloquearEscrituras, sinValidacionNativa, vaciarSelect, mensajeError, centrar,
 };
